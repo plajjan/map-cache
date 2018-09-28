@@ -1,7 +1,8 @@
 # map-cache
-map-cache is a package for Cisco NSO to provide a cached copy of simple mappings
-and to automatically update those on regular schedule. It is meant for fast
-retrieval of certain live-status data.
+map-cache is a Cisco NSO package providing cached mapping tables for fast
+lookups, typically of otherwise slow-to-retrieve live-status data. The data is
+kept up to date by continuously running background workers populating the
+mappings.
 
 ## Typical problem
 When working with SNMP data there is commonly a need to lookup values in various

@@ -17,7 +17,9 @@ module map-cache {
   }
 
   description
-    "Bla bla...";
+    "map-cache provides cached mapping tables for fast lookups, typically of
+    otherwise slow-to-retrieve live-status data. The data is kept up to date by
+    continuously running background workers populating the mappings.";
 
   revision 2016-01-01 {
     description
