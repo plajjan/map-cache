@@ -1,0 +1,156 @@
+module map-cache {
+  yang-version 1.1;
+  namespace "http://example.com/map-cache";
+  prefix map-cache;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import ietf-yang-types {
+    prefix yang;
+  }
+  import tailf-common {
+    prefix tailf;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  description
+    "Bla bla...";
+
+  revision 2016-01-01 {
+    description
+      "Initial revision.";
+  }
+
+  container map-cache {
+    tailf:hidden "debug";
+    description "This is cache of mapping data, to provide fast lookups from a key to a value";
+
+    leaf enabled {
+      description
+        "Enable the map-cache. The map-cache works in the background to populate
+        the configured mapping tables. This leaf controls whether the background
+        workers are enabled or not.";
+      type boolean;
+      default "false";
+    }
+
+    leaf worker-threads {
+      description
+        "The number of concurrent worker threads to use. A higher number will
+        lead to higher polling throughput but might also load the devices
+        heavily or trigger some connection rate-limit.";
+      type uint16 {
+        range "1..max";
+      }
+      default "1";
+    }
+
+    action populate {
+      tailf:info "Populate key value data";
+      tailf:actionpoint "map-cache-populate";
+
+      input {
+        leaf key_xpath {
+          description "XPath to the key of the map, e.g. /IF-MIB/ifTable/ifName";
+          tailf:info "XPath to the key of the map, e.g. /IF-MIB/ifTable/ifName";
+          type string;
+          mandatory true;
+        }
+        leaf value_xpath {
+          description "XPath to the value we map to, e.g. /IF-MIB/ifTable/ifIndex";
+          tailf:info "XPath to the value we map to, e.g. /IF-MIB/ifTable/ifIndex";
+          type string;
+          mandatory true;
+        }
+        leaf device {
+          description "Device for which to poll";
+          type leafref {
+            path "/ncs:devices/ncs:device/ncs:name";
+          }
+          mandatory true;
+        }
+      }
+
+      output {
+        leaf success {
+          type boolean;
+        }
+        leaf message {
+          type string;
+        }
+      }
+    }
+
+    list map {
+      key "key_xpath value_xpath";
+
+      leaf key_xpath {
+        tailf:info "XPath to the key of the map, e.g. /IF-MIB/ifTable/ifName";
+        tailf:cli-allow-range;
+        type string;
+      }
+
+      leaf value_xpath {
+        tailf:info "XPath to the value we map to, e.g. /IF-MIB/ifTable/ifIndex";
+        tailf:cli-allow-range;
+        type string;
+      }
+
+      list device {
+        key name;
+        leaf name {
+          type string;
+          description "Name of the device";
+        }
+
+        leaf update-interval {
+          description "The interval between updates for this mapping. Note how
+            the process of updating takes a bit of time so if you want timely
+            updates, please error on the pessimistic side.";
+          type uint32;
+          units "seconds";
+          default 3600;
+        }
+
+        container last-poll-stats {
+          config false;
+
+          leaf start-timestamp {
+            description "Timestamp of the end of the last poll cycle";
+            type yang:date-and-time;
+          }
+
+          leaf end-timestamp {
+            description "Timestamp of the end of the last poll cycle";
+            type yang:date-and-time;
+          }
+
+          leaf duration {
+            description "The duration of the last poll cycle in hundreds of a second";
+            type yang:timeticks;
+          }
+
+          leaf entries-polled {
+            description "Number of entries polled in the last cycle";
+            type uint32;
+          }
+        }
+
+        list map {
+          key k;
+          config false;
+          leaf k {
+            type string;
+          }
+          leaf v {
+            type string;
+          }
+        }
+      }
+
+    }
+  }
+}

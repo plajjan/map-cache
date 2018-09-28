@@ -1,0 +1,21 @@
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+  <name>map-cache</name>
+  <package-version>1.0</package-version>
+  <description>A cache of table mappings for quick lookups, like SNMP ifName to ifIndex or similar.</description>
+  <ncs-min-version>4.5</ncs-min-version>
+
+  <component>
+      <name>map_cache.MapCacheApp</name>
+      <application>
+          <python-class-name>map_cache.map_cache.MapCacheApp</python-class-name>
+      </application>
+  </component>
+
+  <component>
+      <name>map_cache.WorkerApp</name>
+      <application>
+          <python-class-name>map_cache.map_cache.WorkerApp</python-class-name>
+      </application>
+  </component>
+
+</ncs-package>
