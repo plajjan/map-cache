@@ -189,9 +189,3 @@ polling and population of the map-cache.
 
 
 ## TODO / Bugs / Caveats
-* the update-interval doesn't work, map-cache will actually work as fast as it
-  can, the worker threads goes through the queue, processing all jobs. As soon
-  as the queue is empty it will be replenished again by all the mapping tables
-  and so the worker threads will then go through it again ad infinitum. This
-  means the whole thing is pretty much going to be waiting for fetching data all
-  the time, so bound by the speed at which NCS can fetch data.

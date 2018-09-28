@@ -115,6 +115,7 @@ module map-cache {
           type uint32;
           units "seconds";
           default 3600;
+          range "60..max";
         }
 
         container last-poll-stats {

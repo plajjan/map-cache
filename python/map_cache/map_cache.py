@@ -2,6 +2,7 @@
 import datetime
 import queue
 import random
+import re
 import threading
 import time
 
@@ -19,6 +20,20 @@ def is_ha_master_or_no_ha():
             return (mode == 'master')
         else:
             return True
+
+
+def convert_yang_date_and_time_to_datetime(yang_date_and_time):
+    """Convert a timestamp stored in a leaf of type yang:date-and-time to python datetime.datetime"""
+    if not yang_date_and_time:
+        return None
+    # the timestamps are read as 2018-02-20T13:15:14+00:00
+    # strip the extra +00:00 from the end
+    yang_date_and_time = re.sub(r'[+-]\d{2}:\d{2}$', '', yang_date_and_time)
+    if re.search(r'\.\d+$', yang_date_and_time):
+        fmt = '%Y-%m-%dT%H:%M:%S.%f'
+    else:
+        fmt = '%Y-%m-%dT%H:%M:%S'
+    return datetime.datetime.strptime(yang_date_and_time, fmt)
 
 
 def map_cache_populate(log, key_xpath, value_xpath, device):
@@ -168,7 +183,18 @@ class PeriodicJobThread(threading.Thread):
                         root = ncs.maagic.get_root(t_read)
                         for m in root.map_cache.map:
                             for dev in m.device:
-                                self._q.put((1, (m.key_xpath, m.value_xpath, dev.name)))
+                                # if we don't have a previous run, we should immediately populate
+                                start_timestamp = dev.last_poll_stats.start_timestamp
+                                if start_timestamp is None:
+                                    self._q.put((1, (m.key_xpath, m.value_xpath, dev.name)))
+                                    continue
+
+                                # check if it's time to update mapping based on last run and update-interval
+                                start_ts = convert_yang_date_and_time_to_datetime(dev.last_poll_stats.start_timestamp)
+                                next_run = start_ts + datetime.timedelta(seconds=dev.update_interval)
+                                if datetime.datetime.utcnow() > next_run:
+                                    self._q.put((1, (m.key_xpath, m.value_xpath, dev.name)))
+
                 except Exception as exc:
                     self.log.error("Failed to add jobs: ", exc)
 
