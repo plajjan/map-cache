@@ -42,9 +42,9 @@ mappings for fast lookup, thereby reducing what you have to ask for from
 live-status through slow polling.
 
 ## Solution - map-cache
-A map helps you go from e.g. `/IF-MIB/ifTable/ifName` to `/IF-MIB/ifTable/ifIndex`,
-i.e. do a lookup from a key to a value. It is perhaps easiest to understand by
-looking at the YANG model;
+A map helps you go from e.g. `/IF-MIB/ifTable/ifEntry/ifName` to
+`/IF-MIB/ifTable/ifEntry/ifIndex`, i.e. do a lookup from a key to a value. It is
+perhaps easiest to understand by looking at the YANG model;
 
 ```
 module: map-cache
@@ -74,13 +74,13 @@ respectively. These serve both to identify this mapping but also act as
 unique per device, thus under each mapping definition, we have a list of
 devices, and under each device we will find the actual mapping of table content.
 
-To continue on the example with `/IF-MIB/ifTable/ifName` mapping to
-`/IF-MIB/ifTable/ifIndex`, these would be the key_xpath and value_xpath of
+To continue on the example with `/IF-MIB/ifTable/ifEntry/ifName` mapping to
+`/IF-MIB/ifTable/ifEntry/ifIndex`, these would be the key_xpath and value_xpath of
 `/map-cache/map`. We can find the ifIndex of HundredGigE0/1/2/3 on device FOO
 using the following XPath into the map-cache:
 
 ```
-/map-cache/map{/IF-MIB/ifTable/ifName,/IF-MIB/ifTable/ifIndex}/device{FOO}/map{HundredGigE0/1/2/3}/v
+/map-cache/map{/IF-MIB/ifTable/ifEntry/ifName,/IF-MIB/ifTable/ifEntry/ifIndex}/device{FOO}/map{HundredGigE0/1/2/3}/v
 ```
 
 Note that the base of the map-cache tree is configuration, that is you write the
