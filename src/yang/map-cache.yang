@@ -112,10 +112,11 @@ module map-cache {
           description "The interval between updates for this mapping. Note how
             the process of updating takes a bit of time so if you want timely
             updates, please error on the pessimistic side.";
-          type uint32;
+          type uint32 {
+            range "60..max";
+          }
           units "seconds";
           default 3600;
-          range "60..max";
         }
 
         container last-poll-stats {
